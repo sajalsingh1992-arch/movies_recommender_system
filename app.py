@@ -2,7 +2,6 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
-# The only two required mathematical imports
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -29,7 +28,8 @@ def fetch_poster(movie_id):
 
 
 def recommend(movie):
-    # FIXED: Added [0] to extract the pure integer index out of the Pandas object
+    # Added [0] to extract the pure primitive index out of pandas index array.
+    # This prevents the matrix shapes from breaking my downstream loops.
     movie_index = movies[movies['title'] == movie].index[0]
 
     # Calculate the similarity matrix using scikit-learn
