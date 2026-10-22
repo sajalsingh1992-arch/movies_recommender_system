@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
-# ONLY NEW IMPORT REQURIED:
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -14,7 +14,6 @@ def fetch_poster(movie_id):
 
     params = {
         "api_key": api_key
-
     }
 
     response = requests.get(url, params=params, timeout=10)
@@ -32,14 +31,13 @@ def fetch_poster(movie_id):
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
 
-    # MODIFIED: Calculate similarity on-the-fly for this movie index
-    # instead of loading a static 176MB file
+    # CALCULATE VECTOR MATRIX ON THE FLY
     cv = CountVectorizer(max_features=5000, stop_words='english')
     count_matrix = cv.fit_transform(movies['tags'])
-    similarity_matrix = cosine_similarity(count_matrix[movie_index], count_matrix)
+    similarity = cosine_similarity(count_matrix)  # Generates original matrix format
 
-    # Kept your exact sorting logic using the dynamic matrix result
-    distances = similarity_matrix[0]
+
+    distances = similarity[movie_index]
     movies_list = sorted(list(enumerate(distances)), reverse=True,
                          key=lambda x: x[1])[1:6]
 
@@ -58,7 +56,7 @@ def recommend(movie):
 movies_dict = pickle.load(open('movies.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
 
-# REMOVED: similarity = pickle.load(open('similarity.pkl','rb'))
+# similarity = pickle.load(open('similarity.pkl','rb'))
 
 st.title('Movie Recommender System')
 
@@ -71,7 +69,6 @@ if st.button('Recommend'):
 
     with col1:
         st.header(names[0])
-
         st.image(posters[0])
 
     with col2:
